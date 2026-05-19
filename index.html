@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="타임 디펜더즈 - 머징 디펜스 모바일 게임">
+    <title>타임 디펜더즈 : 머지 & 디펜스</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 500px;
+            background: #16213E;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 2px solid #D4AF37;
+        }
+
+        .logo {
+            width: 130px;
+            height: 130px;
+            margin-bottom: 20px;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        h1 {
+            color: #D4AF37;
+            font-size: 26px;
+            margin-bottom: 8px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            color: #B8B8C8;
+            font-size: 15px;
+            margin-bottom: 30px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .store-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 15px 30px;
+            background: #000000;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .store-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
+            border-color: #D4AF37;
+        }
+
+        .store-button.ios {
+            background: #000000;
+        }
+
+        .store-button.android {
+            background: #4A6741;
+            color: #FFFFFF;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .redirect-message {
+            margin-top: 20px;
+            padding: 15px;
+            background: #4A6741;
+            color: white;
+            border-radius: 10px;
+            font-size: 14px;
+            border: 1px solid #D4AF37;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #6B7280;
+            font-size: 12px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="app_icon.png" alt="Time Defenders" class="logo">
+        <h1>타임 디펜더즈</h1>
+        <p class="subtitle">현대 특수부대로 역사를 지켜라</p>
+
+        <div id="redirectMessage" class="redirect-message hidden">
+            앱 스토어로 이동 중입니다...
+        </div>
+
+        <div id="buttonGroup" class="button-group">
+            <a href="https://apps.apple.com/app/id6759893172"
+               class="store-button ios"
+               id="iosButton">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M13,3.5C13.73,2.67 14.94,2.04 15.94,2C16.07,3.17 15.6,4.35 14.9,5.19C14.21,6.04 13.07,6.7 11.95,6.61C11.8,5.46 12.36,4.26 13,3.5Z"/>
+                </svg>
+                App Store에서 다운로드
+            </a>
+
+            <a href="https://play.google.com/store/apps/details?id=com.nini.timedefenders"
+               class="store-button android"
+               id="androidButton">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
+                </svg>
+                Google Play에서 다운로드
+            </a>
+        </div>
+
+        <div class="footer">
+            © 2026 Time Defenders. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        // 자동 언어 감지 및 리다이렉션
+        const userLang = navigator.language || navigator.userLanguage;
+        const currentPage = window.location.pathname.split('/').pop();
+
+        // 이미 특정 언어 페이지에 있으면 리다이렉션 하지 않음
+        if (currentPage === '' || currentPage === 'index.html') {
+            if (userLang.startsWith('en')) {
+                window.location.href = 'index-en.html';
+            } else if (userLang.startsWith('ja')) {
+                window.location.href = 'index-ja.html';
+            }
+            // 한국어는 기본값이므로 리다이렉션 불필요
+        }
+
+        function detectDevice() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                return 'ios';
+            }
+
+            if (/android/i.test(userAgent)) {
+                return 'android';
+            }
+
+            return 'desktop';
+        }
+
+        function redirectToStore() {
+            const device = detectDevice();
+            const iosUrl = 'https://apps.apple.com/app/id6759893172';
+            const androidUrl = 'https://play.google.com/store/apps/details?id=com.nini.timedefenders';
+
+            if (device === 'ios') {
+                document.getElementById('redirectMessage').classList.remove('hidden');
+                document.getElementById('buttonGroup').classList.add('hidden');
+
+                setTimeout(() => {
+                    window.location.href = iosUrl;
+                }, 500);
+            } else if (device === 'android') {
+                document.getElementById('redirectMessage').classList.remove('hidden');
+                document.getElementById('buttonGroup').classList.add('hidden');
+
+                setTimeout(() => {
+                    window.location.href = androidUrl;
+                }, 500);
+            }
+        }
+
+        window.onload = redirectToStore;
+    </script>
+</body>
+</html>
