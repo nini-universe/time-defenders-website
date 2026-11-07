@@ -1,214 +1,869 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="타임 디펜더스 - 머징 디펜스 모바일 게임">
-    <title>타임 디펜더스 : 머지 & 디펜스</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>타임 디펜더스 : 머지 & 디펜스</title>
+<meta name="description" content="소수 정예 현대 특수부대 vs 수천 명의 과거 대군. 머지로 20단계 계급을 올리고 18종 특수무기로 6개 시대, 300 스테이지를 지켜라.">
+<meta property="og:title" content="타임 디펜더스 : 머지 & 디펜스">
+<meta property="og:description" content="현대 특수부대, 과거로 출격! 소수 정예로 수천 대군을 막아라.">
+<meta property="og:image" content="img/og.jpg">
+<meta name="theme-color" content="#0B131B">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0B131B;        /* 게임 메인 화면의 지형도 바탕 */
+    --night-2: #111D28;
+    --panel: #15222E;
+    --panel-2: #1B2A37;
+    --line: rgba(237, 230, 214, 0.12);
+    --cream: #EDE6D6;        /* 워드마크 색 */
+    --sub: #A9A493;
+    --gold: #F2B623;         /* 스토어 스크린샷 강조 노랑 */
+    --gold-deep: #C98E12;
+    --brass: #B79257;        /* 금속 프레임 */
+    --red: #A3271E;          /* 방패 붉은색 */
+    --red-glow: #E2492F;
+    --electric: #5BB8FF;     /* 시공간 균열 */
+    --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    --font: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+    --font-num: "Oswald", "Noto Sans KR", sans-serif;
+  }
+  html[lang="ja"] { --font: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif; }
+  html[lang="en"] { --font: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--night);
+    color: var(--cream);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { display: block; max-width: 100%; }
+  a { color: inherit; }
+  .gold { color: var(--gold); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-        .container {
-            text-align: center;
-            max-width: 500px;
-            background: #16213E;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            border: 2px solid #D4AF37;
-        }
+  /* 지형도 질감 — 게임 메인 화면 바탕을 그대로 깐다 */
+  .topo { position: relative; isolation: isolate; }
+  .topo::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: url(img/ui/topo.webp) center / 640px auto repeat;
+    opacity: .55;
+  }
 
-        .logo {
-            width: 130px;
-            height: 130px;
-            margin-bottom: 20px;
-            border-radius: 24px;
-            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
-        }
+  /* ── 상단 바 ── */
+  .nav {
+    position: fixed; inset: 0 0 auto 0; z-index: 30;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 16px;
+    transition: background .3s, border-color .3s;
+    border-bottom: 1px solid transparent;
+  }
+  .nav.solid { background: rgba(11, 19, 27, 0.88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-color: var(--line); }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; min-width: 0; }
+  .brand img.ic { width: 36px; height: 36px; border-radius: 9px; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
+  .brand img.wm { height: 15px; width: auto; }
+  .lang { display: flex; gap: 2px; background: rgba(255,255,255,.07); padding: 3px; border-radius: 999px; border: 1px solid var(--line); flex: none; }
+  .lang button {
+    font-family: var(--font); font-size: 13px; font-weight: 500; color: var(--sub);
+    background: none; border: 0; padding: 6px 11px; border-radius: 999px; cursor: pointer;
+  }
+  .lang button[aria-pressed="true"] { background: var(--cream); color: var(--night); }
 
-        h1 {
-            color: #D4AF37;
-            font-size: 26px;
-            margin-bottom: 8px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-        }
+  /* ── 히어로 ── */
+  .hero {
+    position: relative; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 110px 16px 0; overflow: hidden; isolation: isolate;
+  }
+  .hero-bg { position: absolute; inset: 0; z-index: -2; }
+  .hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; transform: scale(1.06); animation: slowzoom 22s ease-in-out infinite alternate; }
+  .hero::after { /* 아래쪽과 왼쪽을 어둡게 — 글자가 읽히게 */
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background:
+      linear-gradient(180deg, rgba(11,19,27,.55) 0%, rgba(11,19,27,.05) 28%, rgba(11,19,27,.35) 55%, var(--night) 96%),
+      radial-gradient(ellipse at 20% 70%, rgba(11,19,27,.6) 0%, transparent 60%);
+  }
+  .hero-inner { max-width: 1120px; width: 100%; margin: 0 auto; padding-bottom: 28px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 6px 14px 6px 6px; border-radius: 999px;
+    background: rgba(11,19,27,.72); border: 1px solid rgba(242,182,35,.45);
+    font-size: 14px; font-weight: 500; color: var(--cream);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  .badge b { font-family: var(--font-num); font-weight: 600; letter-spacing: .04em; background: var(--gold); color: #1A1206; padding: 2px 10px; border-radius: 999px; font-size: 13px; }
+  .hero-id { display: flex; align-items: center; gap: 16px; margin-top: 22px; }
+  .hero-id img.shield { width: 84px; height: 84px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.6), 0 0 0 1px rgba(237,230,214,.15); }
+  .hero-id .wm { height: clamp(20px, 3.4vw, 28px); width: auto; filter: drop-shadow(0 2px 6px rgba(0,0,0,.7)); }
+  .hero-id .kname { margin-top: 6px; font-size: 15px; color: var(--cream); font-weight: 500; text-shadow: 0 1px 8px rgba(0,0,0,.9); }
+  .hero h1 {
+    margin-top: 22px; font-weight: 900; line-height: 1.12; letter-spacing: -0.01em;
+    font-size: clamp(42px, 9vw, 92px); word-break: keep-all; text-wrap: balance;
+    text-shadow: 0 4px 24px rgba(0,0,0,.75);
+  }
+  html[lang="en"] .hero h1 { font-family: var(--font-num); text-transform: uppercase; font-weight: 700; letter-spacing: .01em; font-size: clamp(44px, 9vw, 96px); line-height: 1.02; }
+  html[lang="ja"] .hero h1 { font-size: clamp(34px, 7.6vw, 80px); word-break: auto-phrase; }
+  .hero h1 .gold { display: block; }
+  .hero .lead { margin-top: 14px; max-width: 560px; font-size: clamp(17px, 2.4vw, 21px); font-weight: 500; color: var(--cream); text-shadow: 0 2px 12px rgba(0,0,0,.8); word-break: keep-all; }
+  .rule { width: 180px; height: 3px; margin-top: 18px; background: linear-gradient(90deg, var(--red-glow), var(--gold) 70%, transparent); border-radius: 3px; }
 
-        .subtitle {
-            color: #B8B8C8;
-            font-size: 15px;
-            margin-bottom: 30px;
-        }
+  .stores { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .store {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 22px; border-radius: 12px; text-decoration: none;
+    font-size: 16px; font-weight: 700;
+    transition: transform .15s, box-shadow .2s, background .2s;
+  }
+  .store svg { width: 22px; height: 22px; flex: none; }
+  .store.primary { background: var(--gold); color: #1A1206; box-shadow: 0 6px 24px rgba(242,182,35,.3); }
+  .store.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(242,182,35,.45); }
+  .store.ghost { background: rgba(11,19,27,.7); color: var(--cream); border: 1px solid rgba(237,230,214,.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .store.ghost:hover { transform: translateY(-2px); border-color: var(--cream); }
 
-        .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 30px;
-        }
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    max-width: 1120px; width: 100%; margin: 34px auto 0;
+    border-top: 1px solid var(--line);
+  }
+  .stat { padding: 18px 8px 22px; text-align: center; position: relative; }
+  .stat + .stat::before { content: ""; position: absolute; left: 0; top: 22px; bottom: 22px; width: 1px; background: var(--line); }
+  .stat .n { font-family: var(--font-num); font-weight: 700; font-size: clamp(30px, 6vw, 48px); line-height: 1; color: var(--gold); }
+  .stat .l { margin-top: 6px; font-size: clamp(12px, 2.4vw, 15px); color: var(--sub); font-weight: 500; }
 
-        .store-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 15px 30px;
-            background: #000000;
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 2px solid transparent;
-        }
+  /* ── 공통 섹션 ── */
+  section { padding: 96px 16px; }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-num); font-weight: 600; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold);
+  }
+  .eyebrow::before { content: ""; width: 26px; height: 2px; background: var(--gold); }
+  h2 {
+    margin-top: 12px; font-weight: 900; line-height: 1.18; letter-spacing: -0.01em;
+    font-size: clamp(32px, 5.6vw, 54px); word-break: keep-all; text-wrap: balance;
+  }
+  html[lang="ja"] h2 { font-size: clamp(27px, 5vw, 50px); word-break: auto-phrase; }
+  html[lang="en"] h2 { font-family: var(--font-num); font-weight: 700; text-transform: uppercase; letter-spacing: .01em; }
+  .section-lead { margin-top: 14px; font-size: 18px; color: var(--sub); max-width: 620px; word-break: keep-all; }
+  .center { text-align: center; }
+  .center .section-lead { margin-left: auto; margin-right: auto; }
+  .center .eyebrow::after { content: ""; width: 26px; height: 2px; background: var(--gold); }
 
-        .store-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
-            border-color: #D4AF37;
-        }
+  /* 스크롤 등장 */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
 
-        .store-button.ios {
-            background: #000000;
-        }
+  /* ── 머지 진급 ── */
+  .merge { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 56px; align-items: center; }
+  .merge-demo {
+    position: relative; padding: 30px 22px 22px; border-radius: 22px;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--line); box-shadow: var(--shadow);
+  }
+  .merge-stage { position: relative; height: 170px; }
+  .tile {
+    position: absolute; top: 18px; width: 120px; height: 120px; border-radius: 16px;
+    display: grid; place-items: center;
+    background: radial-gradient(circle at 50% 40%, #2A3B4A, #17232E);
+    border: 1px solid rgba(183,146,87,.45);
+    box-shadow: inset 0 0 0 3px rgba(0,0,0,.25);
+  }
+  .tile img { width: 84px; height: 84px; object-fit: contain; }
+  .tile.a { left: calc(50% - 150px); }
+  .tile.b { left: calc(50% + 30px); }
+  .tile.r { left: calc(50% - 60px); opacity: 0; border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold), 0 0 40px rgba(242,182,35,.55); }
+  .merge-demo.go .tile.a { animation: toCenterL .55s cubic-bezier(.6,0,.4,1) forwards; }
+  .merge-demo.go .tile.b { animation: toCenterR .55s cubic-bezier(.6,0,.4,1) forwards; }
+  .merge-demo.go .tile.r { animation: popIn .5s .5s cubic-bezier(.2,1.6,.4,1) forwards; }
+  .merge-demo.go .flash { animation: flash .6s .45s ease-out forwards; }
+  .flash { position: absolute; left: 50%; top: 78px; width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: #fff; opacity: 0; pointer-events: none; }
+  .plus { position: absolute; left: 50%; top: 60px; transform: translateX(-50%); font-family: var(--font-num); font-size: 34px; color: var(--sub); transition: opacity .2s; }
+  .merge-demo.go .plus { opacity: 0; }
+  .merge-cap { text-align: center; min-height: 64px; }
+  .merge-cap .rk { font-size: 22px; font-weight: 900; }
+  .merge-cap .wp { margin-top: 2px; font-size: 15px; color: var(--sub); }
+  .merge-cap .wp b { color: var(--gold); font-weight: 700; }
+  .ladder { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 18px; }
+  .ladder img { width: 100%; aspect-ratio: 1; object-fit: contain; padding: 3px; border-radius: 8px; background: rgba(255,255,255,.03); opacity: .28; filter: grayscale(.8); transition: opacity .3s, filter .3s, background .3s; }
+  .ladder img.on { opacity: 1; filter: none; }
+  .ladder img.cur { background: rgba(242,182,35,.18); box-shadow: 0 0 0 1px var(--gold); }
+  .points { margin-top: 26px; display: grid; gap: 14px; }
+  .points li { list-style: none; display: flex; gap: 12px; align-items: flex-start; font-size: 17px; word-break: keep-all; }
+  .points li::before { content: ""; flex: none; width: 8px; height: 8px; margin-top: 10px; background: var(--gold); transform: rotate(45deg); }
 
-        .store-button.android {
-            background: #4A6741;
-            color: #FFFFFF;
-        }
+  /* ── 특수무기 ── */
+  .weapons-sec { background: linear-gradient(180deg, var(--night) 0%, var(--night-2) 100%); }
+  .arsenal { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-top: 44px; }
+  .wpn {
+    position: relative; padding: 14px 8px 12px; border-radius: 14px; text-align: center;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line);
+    transition: transform .2s, border-color .2s, box-shadow .2s;
+  }
+  .wpn:hover { transform: translateY(-4px); border-color: rgba(183,146,87,.6); }
+  .wpn img { width: 74%; aspect-ratio: 1; object-fit: contain; margin: 0 auto; filter: drop-shadow(0 6px 10px rgba(0,0,0,.5)); transition: transform .25s; }
+  .wpn:hover img { transform: scale(1.08) rotate(-3deg); }
+  .wpn .nm { margin-top: 8px; font-size: 14px; font-weight: 700; line-height: 1.3; word-break: keep-all; min-height: 2.6em; display: flex; align-items: center; justify-content: center; }
+  .wpn .rk { margin-top: 4px; font-size: 12px; color: var(--sub); }
+  .wpn.top { border-color: rgba(242,182,35,.4); background: linear-gradient(180deg, #2A2716, var(--panel)); }
+  .wpn.top .rk { color: var(--gold); }
+  .wpn.nuke { border-color: rgba(226,73,47,.6); background: linear-gradient(180deg, #3A1A16, var(--panel)); box-shadow: 0 0 30px rgba(226,73,47,.18); }
+  .wpn.nuke .rk { color: var(--red-glow); }
+  .auto-note { margin-top: 22px; text-align: center; color: var(--sub); font-size: 15px; }
+  .auto-note b { font-family: var(--font-num); letter-spacing: .08em; color: var(--cream); border: 1px solid var(--line); border-radius: 6px; padding: 1px 8px; margin: 0 2px; }
 
-        .icon {
-            width: 24px;
-            height: 24px;
-        }
+  /* ── 전투 (풀블리드 아트) ── */
+  .battle { position: relative; padding: 0; overflow: hidden; isolation: isolate; }
+  .battle .art { position: absolute; inset: 0; z-index: -2; }
+  .battle .art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+  .battle::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(11,19,27,.94) 0%, rgba(11,19,27,.7) 45%, rgba(11,19,27,.15) 100%), linear-gradient(180deg, var(--night-2) 0%, transparent 18%, transparent 82%, var(--night) 100%); }
+  .battle .wrap { padding: 140px 0; }
+  .battle .copy { max-width: 540px; }
+  .facts { display: grid; gap: 16px; margin-top: 30px; }
+  .fact { display: flex; gap: 16px; align-items: center; padding: 16px 18px; border-radius: 14px; background: rgba(11,19,27,.62); border: 1px solid var(--line); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .fact .big { flex: none; min-width: 64px; font-family: var(--font-num); font-weight: 700; font-size: 34px; line-height: 1; color: var(--gold); text-align: center; }
+  .fact .big svg { display: block; margin: 0 auto; }
+  .fact p { font-size: 16px; word-break: keep-all; }
+  .fact p b { display: block; font-size: 18px; }
+  .fact p span { color: var(--sub); }
 
-        .redirect-message {
-            margin-top: 20px;
-            padding: 15px;
-            background: #4A6741;
-            color: white;
-            border-radius: 10px;
-            font-size: 14px;
-            border: 1px solid #D4AF37;
-        }
+  /* ── 시대 ── */
+  .eras { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 44px; }
+  .era {
+    position: relative; overflow: hidden; border-radius: 18px; min-height: 230px;
+    border: 1px solid var(--line); isolation: isolate;
+    display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
+    transition: transform .25s, border-color .25s;
+  }
+  .era:hover { transform: translateY(-4px); border-color: rgba(183,146,87,.6); }
+  .era .map { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; transition: transform .6s; }
+  .era:hover .map { transform: scale(1.06); }
+  .era::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(11,19,27,.2) 0%, rgba(11,19,27,.55) 45%, rgba(11,19,27,.95) 100%); }
+  .era .emb { position: absolute; top: 14px; right: 14px; width: 92px; height: 84px; object-fit: contain; filter: drop-shadow(0 8px 14px rgba(0,0,0,.7)); }
+  .era .no { font-family: var(--font-num); font-size: 13px; letter-spacing: .14em; color: var(--brass); }
+  .era h3 { font-size: 26px; font-weight: 900; line-height: 1.2; }
+  .era .foe { margin-top: 4px; font-size: 14px; color: var(--sub); word-break: keep-all; }
+  .era .st { margin-top: 10px; display: inline-block; align-self: flex-start; font-family: var(--font-num); font-size: 13px; letter-spacing: .06em; padding: 3px 10px; border-radius: 6px; background: rgba(237,230,214,.1); border: 1px solid var(--line); }
+  .era.future { border-color: rgba(226,73,47,.55); box-shadow: 0 0 40px rgba(226,73,47,.15); }
+  .era.future::after { background: linear-gradient(180deg, rgba(40,10,8,.25) 0%, rgba(40,10,8,.6) 45%, rgba(22,8,8,.96) 100%); }
+  .era.future .no { color: var(--red-glow); }
+  .era .tag { position: absolute; top: 14px; left: 14px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--red); color: #fff; letter-spacing: .02em; }
 
-        .footer {
-            margin-top: 30px;
-            color: #6B7280;
-            font-size: 12px;
-        }
+  .infinite {
+    margin-top: 16px; display: flex; align-items: center; gap: 22px; padding: 22px 26px; border-radius: 18px;
+    background: linear-gradient(90deg, #22201A, var(--panel)); border: 1px solid rgba(183,146,87,.35);
+  }
+  .infinite img { width: 120px; flex: none; filter: drop-shadow(0 8px 14px rgba(0,0,0,.6)); }
+  .infinite h3 { font-size: 22px; font-weight: 900; }
+  .infinite p { margin-top: 4px; color: var(--sub); word-break: keep-all; }
 
-        .hidden {
-            display: none;
-        }
-    </style>
-    <script src="/analytics.js"></script>
+  /* ── 강화 · 편의 ── */
+  .grow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 44px; }
+  .gcard {
+    display: flex; gap: 16px; align-items: flex-start; padding: 22px 20px; border-radius: 18px;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line);
+  }
+  .gcard img { width: 64px; height: 64px; object-fit: contain; flex: none; filter: drop-shadow(0 6px 10px rgba(0,0,0,.5)); }
+  .gcard h3 { font-size: 19px; font-weight: 900; }
+  .gcard p { margin-top: 4px; font-size: 15px; color: var(--sub); word-break: keep-all; }
+  .gcard .pill { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--gold); border: 1px solid rgba(242,182,35,.4); padding: 1px 9px; border-radius: 999px; }
+
+  /* ── 스크린샷 ── */
+  .shots-sec { background: var(--night-2); }
+  .shots-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+  .arrows { display: flex; gap: 8px; flex: none; }
+  .arrows button {
+    width: 46px; height: 46px; border-radius: 50%; cursor: pointer;
+    background: transparent; color: var(--cream); border: 1px solid rgba(237,230,214,.3);
+    font-size: 20px; transition: background .2s, border-color .2s;
+  }
+  .arrows button:hover { background: rgba(237,230,214,.1); border-color: var(--cream); }
+  .shots {
+    display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    padding: 34px 2px 20px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #2A3B4A transparent;
+  }
+  .shots img {
+    flex: 0 0 auto; width: clamp(210px, 44vw, 280px); aspect-ratio: 1206 / 2622; object-fit: cover; scroll-snap-align: start;
+    border-radius: 22px; box-shadow: var(--shadow); border: 1px solid var(--line); background: var(--panel);
+  }
+
+  /* ── 마지막 CTA ── */
+  .final { position: relative; overflow: hidden; isolation: isolate; text-align: center; padding: 130px 16px; }
+  .final .art { position: absolute; inset: 0; z-index: -2; }
+  .final .art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%; }
+  .final::after { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 50% 50%, rgba(11,19,27,.55) 0%, rgba(11,19,27,.9) 70%), linear-gradient(180deg, var(--night-2) 0%, transparent 25%, transparent 75%, var(--night) 100%); }
+  .final img.shield { width: 112px; height: 112px; margin: 0 auto 22px; border-radius: 26px; box-shadow: 0 0 0 1px rgba(237,230,214,.2), 0 0 60px rgba(91,184,255,.35), 0 14px 34px rgba(0,0,0,.6); animation: pulse 3.4s ease-in-out infinite; }
+  .final h2 { max-width: 760px; margin-left: auto; margin-right: auto; }
+  .final .stores { justify-content: center; }
+
+  /* ── 고객 지원 ── */
+  .support { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 34px; max-width: 760px; margin-left: auto; margin-right: auto; text-align: left; }
+  .support a {
+    display: flex; align-items: center; gap: 16px; padding: 20px 22px; border-radius: 16px;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); text-decoration: none;
+    transition: transform .2s, border-color .2s;
+  }
+  .support a:hover { transform: translateY(-3px); border-color: rgba(183,146,87,.6); }
+  .support .ic { flex: 0 0 50px; height: 50px; border-radius: 12px; display: grid; place-items: center; background: rgba(242,182,35,.12); color: var(--gold); }
+  .support .ic svg { width: 24px; height: 24px; }
+  .support b { display: block; font-size: 17px; }
+  .support small { display: block; font-size: 14px; color: var(--sub); word-break: break-all; }
+
+  footer { padding: 30px 16px 46px; text-align: center; color: var(--sub); font-size: 13px; border-top: 1px solid var(--line); }
+  footer img { height: 12px; width: auto; margin: 0 auto 12px; opacity: .7; }
+
+  /* ── 움직임 ── */
+  @keyframes slowzoom { from { transform: scale(1.06); } to { transform: scale(1.14) translateY(-1.5%); } }
+  @keyframes toCenterL { to { transform: translateX(90px) scale(.9); opacity: 0; } }
+  @keyframes toCenterR { to { transform: translateX(-90px) scale(.9); opacity: 0; } }
+  @keyframes popIn { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: scale(1); } }
+  @keyframes flash { 0% { opacity: .95; transform: scale(1); } 100% { opacity: 0; transform: scale(26); } }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 1px rgba(237,230,214,.2), 0 0 40px rgba(91,184,255,.25), 0 14px 34px rgba(0,0,0,.6); } 50% { box-shadow: 0 0 0 1px rgba(237,230,214,.3), 0 0 80px rgba(91,184,255,.5), 0 14px 34px rgba(0,0,0,.6); } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+
+  /* 일본어는 띄어쓰기가 없어 keep-all이면 줄이 안 바뀐다 — 본문은 normal, 제목만 구절 단위 */
+  html[lang="ja"] body * { word-break: normal; }
+  html[lang="ja"] .hero h1, html[lang="ja"] h2 { word-break: auto-phrase; }
+  .badge { flex-wrap: nowrap; max-width: 100%; }
+  .badge span { min-width: 0; }
+
+  /* ── 반응형 ── */
+  @media (max-width: 960px) {
+    .merge { grid-template-columns: minmax(0,1fr); gap: 36px; }
+    .arsenal { grid-template-columns: repeat(4, 1fr); }
+    .eras, .grow { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    section { padding: 76px 16px; }
+    .brand img.wm { display: none; }
+    .hero-id img.shield { width: 64px; height: 64px; border-radius: 15px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat:nth-child(3)::before { display: none; }
+    .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .store { flex: 1 1 100%; justify-content: center; }
+    .arsenal { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .wpn .nm { font-size: 13px; }
+    .eras, .grow { grid-template-columns: 1fr; }
+    .era { min-height: 200px; }
+    .tile { width: 96px; height: 96px; top: 26px; }
+    .tile img { width: 68px; height: 68px; }
+    .tile.a { left: calc(50% - 124px); } .tile.b { left: calc(50% + 28px); } .tile.r { left: calc(50% - 48px); }
+    @keyframes toCenterL { to { transform: translateX(76px) scale(.9); opacity: 0; } }
+    @keyframes toCenterR { to { transform: translateX(-76px) scale(.9); opacity: 0; } }
+    .battle::after { background: linear-gradient(180deg, var(--night-2) 0%, rgba(11,19,27,.55) 25%, rgba(11,19,27,.8) 60%, var(--night) 100%); }
+    .battle .wrap { padding: 110px 0 90px; }
+    .infinite { flex-direction: column; text-align: center; gap: 10px; }
+    .arrows { display: none; }
+  }
+</style>
+<script src="/analytics.js"></script>
 </head>
 <body>
-    <div class="container">
-        <img src="app_icon.png" alt="Time Defenders" class="logo">
-        <h1>타임 디펜더스</h1>
-        <p class="subtitle">현대 특수부대로 역사를 지켜라</p>
 
-        <div id="redirectMessage" class="redirect-message hidden">
-            앱 스토어로 이동 중입니다...
+<header class="nav" id="nav">
+  <a class="brand" href="#top"><img class="ic" src="img/icon.webp" alt=""><img class="wm" src="img/ui/wordmark.webp" alt="Time Defenders"></a>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="ko">한국어</button>
+    <button type="button" data-lang="en">EN</button>
+    <button type="button" data-lang="ja">日本語</button>
+  </div>
+</header>
+
+<main id="top">
+  <!-- 히어로 -->
+  <section class="hero">
+    <div class="hero-bg"><img src="img/art/hero.webp" alt="" fetchpriority="high"></div>
+    <div class="hero-inner">
+      <span class="badge"><b>2.0</b><span data-i18n="badge">전면 개편 · 번외편 '미래' 시대 등장</span></span>
+      <div class="hero-id">
+        <img class="shield" src="img/icon.webp" alt="">
+        <div>
+          <img class="wm" src="img/ui/wordmark.webp" alt="Time Defenders">
+          <div class="kname" data-i18n="kname">타임 디펜더스 : 머지 & 디펜스</div>
         </div>
-
-        <div id="buttonGroup" class="button-group">
-            <a href="https://apps.apple.com/app/id6759893172"
-               class="store-button ios"
-               id="iosButton">
-                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M13,3.5C13.73,2.67 14.94,2.04 15.94,2C16.07,3.17 15.6,4.35 14.9,5.19C14.21,6.04 13.07,6.7 11.95,6.61C11.8,5.46 12.36,4.26 13,3.5Z"/>
-                </svg>
-                App Store에서 다운로드
-            </a>
-
-            <a href="https://play.google.com/store/apps/details?id=com.nini.timedefenders"
-               class="store-button android"
-               id="androidButton">
-                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
-                </svg>
-                Google Play에서 다운로드
-            </a>
-        </div>
-
-        <div class="footer">
-            © 2026 Time Defenders. All rights reserved.
-        </div>
+      </div>
+      <h1 data-i18n="h1">현대 특수부대,<span class="gold">과거로 출격!</span></h1>
+      <p class="lead" data-i18n="lead">소수 정예로 수천 대군을 막아라</p>
+      <div class="rule"></div>
+      <div class="stores">
+        <a class="store primary" href="https://apps.apple.com/app/id6759893172" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          <span data-i18n="appstore">App Store에서 다운로드</span>
+        </a>
+        <a class="store ghost" href="https://play.google.com/store/apps/details?id=com.nini.timedefenders" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/></svg>
+          <span data-i18n="play">Google Play에서 다운로드</span>
+        </a>
+      </div>
     </div>
+    <div class="stats">
+      <div class="stat"><div class="n" data-count="20">20</div><div class="l" data-i18n="s1">계급</div></div>
+      <div class="stat"><div class="n" data-count="18">18</div><div class="l" data-i18n="s2">특수무기</div></div>
+      <div class="stat"><div class="n" data-count="6">6</div><div class="l" data-i18n="s3">시대</div></div>
+      <div class="stat"><div class="n" data-count="300">300</div><div class="l" data-i18n="s4">스테이지</div></div>
+    </div>
+  </section>
 
-    <script>
-        // 자동 언어 감지 및 리다이렉션
-        const userLang = navigator.language || navigator.userLanguage;
-        const currentPage = window.location.pathname.split('/').pop();
+  <!-- 머지로 진급 -->
+  <section class="topo">
+    <div class="wrap merge">
+      <div class="reveal">
+        <span class="eyebrow" data-i18n="mEyebrow">Merge to promote</span>
+        <h2 data-i18n="mTitle">머지로 <span class="gold">진급!</span></h2>
+        <p class="section-lead" data-i18n="mLead">같은 계급 병사 둘을 합치면 한 계급 위로. 이병에서 시작해 원수까지, 20단계를 올라가세요.</p>
+        <ul class="points">
+          <li data-i18n="mP1">처음 오른 계급마다 새 특수무기를 손에 넣어요</li>
+          <li data-i18n="mP2">병사는 시간으로 충전되는 타임리프로 소환</li>
+          <li data-i18n="mP3">원수가 되면 전술핵까지</li>
+        </ul>
+      </div>
+      <div class="merge-demo reveal" id="mergeDemo" aria-hidden="true">
+        <div class="merge-stage">
+          <div class="tile a"><img id="mA" src="img/ranks/ko/1.webp" alt=""></div>
+          <div class="tile b"><img id="mB" src="img/ranks/ko/1.webp" alt=""></div>
+          <div class="plus">+</div>
+          <div class="flash"></div>
+          <div class="tile r"><img id="mR" src="img/ranks/ko/2.webp" alt=""></div>
+        </div>
+        <div class="merge-cap"><div class="rk" id="mRank">일병</div><div class="wp" id="mWeapon"></div></div>
+        <div class="ladder" id="ladder"></div>
+      </div>
+    </div>
+  </section>
 
-        // 이미 특정 언어 페이지에 있으면 리다이렉션 하지 않음
-        if (currentPage === '' || currentPage === 'index.html') {
-            if (userLang.startsWith('en')) {
-                window.location.href = 'index-en.html' + window.location.search; // utm 등 쿼리 유지
-            } else if (userLang.startsWith('ja')) {
-                window.location.href = 'index-ja.html' + window.location.search; // utm 등 쿼리 유지
-            }
-            // 한국어는 기본값이므로 리다이렉션 불필요
-        }
+  <!-- 특수무기 -->
+  <section class="weapons-sec">
+    <div class="wrap center reveal">
+      <span class="eyebrow" data-i18n="wEyebrow">Special weapons</span>
+      <h2 data-i18n="wTitle">계급마다 <span class="gold">특수무기</span></h2>
+      <p class="section-lead" data-i18n="wLead">수류탄과 드론부터 헬기, 전차, 순항미사일, 전술핵까지 18종. 현대 화기의 압도적 화력으로 역사를 지켜라.</p>
+    </div>
+    <div class="wrap">
+      <div class="arsenal" id="arsenal"></div>
+      <p class="auto-note reveal" data-i18n="wAuto">직접 조준해 쏘거나 <b>AUTO</b>에 맡기세요</p>
+    </div>
+  </section>
 
-        function detectDevice() {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  <!-- 실시간 분대 전투 -->
+  <section class="battle">
+    <div class="art"><img src="img/art/squad.webp" alt="" loading="lazy"></div>
+    <div class="wrap">
+      <div class="copy reveal">
+        <span class="eyebrow" data-i18n="bEyebrow">Real-time squad battle</span>
+        <h2 data-i18n="bTitle">몰려오는 <span class="gold">수천 명</span></h2>
+        <p class="section-lead" data-i18n="bLead">시공간 균열이 열렸다. 과거의 대군이 밀려온다. 바리케이드 뒤에서 끝까지 버텨라.</p>
+        <div class="facts">
+          <div class="fact"><div class="big">6</div><p><b data-i18n="b1t">개 분대 · 60명 출격</b><span data-i18n="b1d">최대 6개 분대, 60명이 전장을 누빕니다</span></p></div>
+          <div class="fact"><div class="big"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.3 7.9 8 9 4.7-1.1 8-4.5 8-9V6l-8-3Z"/></svg></div><p><b data-i18n="b2t">엄폐하고 버텨라</b><span data-i18n="b2d">엄폐물 뒤에서 버티고, 다가오는 공성병기를 먼저 부수세요</span></p></div>
+          <div class="fact"><div class="big"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 2.2 5.6L20 6l-2.6 5.2L22 14l-5.6 1.2L17 21l-5-3.4L7 21l.6-5.8L2 14l4.6-2.8L4 6l5.8 1.6L12 2Z"/></svg></div><p><b data-i18n="b3t">한 방에 대군 섬멸</b><span data-i18n="b3d">박격포·헬기·전술핵이 적 행렬을 통째로 쓸어버립니다</span></p></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                return 'ios';
-            }
+  <!-- 6개 시대 -->
+  <section class="topo">
+    <div class="wrap center reveal">
+      <span class="eyebrow" data-i18n="eEyebrow">6 eras · 30 maps · 300 stages</span>
+      <h2 data-i18n="eTitle">고대에서 <span class="gold">미래</span>까지</h2>
+      <p class="section-lead" data-i18n="eLead">시대마다 다른 적과 공성병기. 검병·궁수·기병부터 소총병·전차·헬기, 그리고 외계인까지.</p>
+    </div>
+    <div class="wrap">
+      <div class="eras" id="eras"></div>
+      <div class="infinite reveal">
+        <img src="img/eras/infinite.webp" alt="">
+        <div>
+          <h3 data-i18n="iTitle">무한 모드 & 리더보드</h3>
+          <p data-i18n="iDesc">끝없이 밀려오는 적, 얼마나 버틸 수 있을까요? 시대별 기록으로 전 세계 지휘관과 겨뤄 보세요.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            if (/android/i.test(userAgent)) {
-                return 'android';
-            }
+  <!-- 강화 -->
+  <section>
+    <div class="wrap center reveal">
+      <span class="eyebrow" data-i18n="gEyebrow">Upgrades</span>
+      <h2 data-i18n="gTitle">깊이 있는 <span class="gold">강화</span></h2>
+      <p class="section-lead" data-i18n="gLead">머지 말고도 키울 게 많아요. 병과를 훈련하고, 무기를 개조하고, 부대를 증원하세요.</p>
+    </div>
+    <div class="wrap">
+      <div class="grow">
+        <div class="gcard reveal"><img src="img/ui/forces_helmet.webp" alt=""><div><h3 data-i18n="g1t">병과 훈련</h3><p data-i18n="g1d">5개 병과, 등급 돌파와 특전</p></div></div>
+        <div class="gcard reveal"><img src="img/ui/armory_case.webp" alt=""><div><h3 data-i18n="g2t">무기고</h3><p data-i18n="g2d">특수무기 개조, ★ 돌파와 각성</p></div></div>
+        <div class="gcard reveal"><img src="img/ui/medic_kit.webp" alt=""><div><h3 data-i18n="g3t">부대</h3><p data-i18n="g3d">보급 장비 · 야전 의무 · 타임리프 · 분대 증원</p></div></div>
+        <div class="gcard reveal"><img src="img/ui/supply_case.webp" alt=""><div><h3 data-i18n="g4t">작전 보급</h3><p data-i18n="g4d">접속하지 않는 동안에도 골드가 쌓여요</p><span class="pill" data-i18n="g4n">최대 12시간</span></div></div>
+        <div class="gcard reveal"><img src="img/ui/chronometer.webp" alt=""><div><h3 data-i18n="g5t">공정한 플레이</h3><p data-i18n="g5d">과금 없이 모든 콘텐츠 플레이 가능. 광고 시청은 선택 사항</p></div></div>
+        <div class="gcard reveal"><img src="img/ui/field_radio.webp" alt=""><div><h3 data-i18n="g6t">클라우드 저장</h3><p data-i18n="g6d">기기를 바꿔도 진행 상황을 그대로 이어서</p></div></div>
+      </div>
+    </div>
+  </section>
 
-            return 'desktop';
-        }
+  <!-- 스크린샷 -->
+  <section class="shots-sec">
+    <div class="wrap shots-head">
+      <div class="reveal">
+        <span class="eyebrow" data-i18n="shotEyebrow">Screenshots</span>
+        <h2 data-i18n="shotTitle">작전 브리핑</h2>
+      </div>
+      <div class="arrows">
+        <button type="button" id="prev" aria-label="Previous">←</button>
+        <button type="button" id="next" aria-label="Next">→</button>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="shots" id="shots"></div>
+    </div>
+  </section>
 
-        // GA(/analytics.js)가 이벤트를 보낸 뒤 이동 — 스크립트가 안 올라왔으면 그냥 0.5초 뒤 이동
-        function goStore(url) {
-            if (window.niniStoreGo) niniStoreGo(url);
-            else setTimeout(() => { window.location.href = url; }, 500);
-        }
+  <!-- 마지막 CTA -->
+  <section class="final">
+    <div class="art"><img src="img/art/horde.webp" alt="" loading="lazy"></div>
+    <div class="reveal">
+      <img class="shield" src="img/icon.webp" alt="">
+      <h2 data-i18n="fTitle">지금 타임리프하라.<br><span class="gold">역사가 당신을 기다린다.</span></h2>
+      <div class="stores">
+        <a class="store primary" href="https://apps.apple.com/app/id6759893172" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          <span data-i18n="appstore">App Store에서 다운로드</span>
+        </a>
+        <a class="store ghost" href="https://play.google.com/store/apps/details?id=com.nini.timedefenders" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/></svg>
+          <span data-i18n="play">Google Play에서 다운로드</span>
+        </a>
+      </div>
+    </div>
+  </section>
 
-        function redirectToStore() {
-            const device = detectDevice();
-            const iosUrl = 'https://apps.apple.com/app/id6759893172';
-            const androidUrl = 'https://play.google.com/store/apps/details?id=com.nini.timedefenders';
+  <!-- 고객 지원 -->
+  <section id="support" class="topo">
+    <div class="wrap center reveal">
+      <span class="eyebrow" data-i18n="supEyebrow">Support</span>
+      <h2 data-i18n="supTitle">도움이 필요하신가요?</h2>
+      <p class="section-lead" data-i18n="supLead">게임 안 설정 › 문의하기에서 보내 주시면 기기 정보가 함께 담겨 더 빨리 도와드릴 수 있어요.</p>
+      <div class="support">
+        <a href="mailto:official.nini.universe@gmail.com">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+          <span><b data-i18n="supMail">문의하기 · 오류 신고</b><small>official.nini.universe@gmail.com</small></span>
+        </a>
+        <a href="https://nini-universe.github.io/" target="_blank" rel="noopener">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>
+          <span><b data-i18n="supMore">NINI Universe</b><small data-i18n="supMoreSub">다른 게임 둘러보기</small></span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
 
-            if (device === 'ios') {
-                document.getElementById('redirectMessage').classList.remove('hidden');
-                document.getElementById('buttonGroup').classList.add('hidden');
+<footer>
+  <img src="img/ui/wordmark.webp" alt="">
+  <div>© 2026 NINI Universe. All rights reserved.</div>
+</footer>
 
-                goStore(iosUrl);
-            } else if (device === 'android') {
-                document.getElementById('redirectMessage').classList.remove('hidden');
-                document.getElementById('buttonGroup').classList.add('hidden');
+<script>
+  // ── 문구 (ko / en / ja) — 스토어 2.0 설명(store_listing/APPSTORE_2.0.0.md)과 게임 안 번역을 따른다 ──
+  const T = {
+    ko: {
+      _title: '타임 디펜더스 : 머지 & 디펜스',
+      badge: "전면 개편 · 번외편 '미래' 시대 등장", kname: '타임 디펜더스 : 머지 & 디펜스',
+      h1: '현대 특수부대,<span class="gold">과거로 출격!</span>', lead: '소수 정예로 수천 대군을 막아라',
+      appstore: 'App Store에서 다운로드', play: 'Google Play에서 다운로드',
+      s1: '계급', s2: '특수무기', s3: '시대', s4: '스테이지',
+      mEyebrow: 'Merge to promote', mTitle: '머지로 <span class="gold">진급!</span>',
+      mLead: '같은 계급 병사 둘을 합치면 한 계급 위로. 이병에서 시작해 원수까지, 20단계를 올라가세요.',
+      mP1: '처음 오른 계급마다 새 특수무기를 손에 넣어요', mP2: '병사는 시간으로 충전되는 타임리프로 소환', mP3: '원수가 되면 전술핵까지',
+      unlock: '특수무기 획득', basic: '기본 화력',
+      wEyebrow: 'Special weapons', wTitle: '계급마다 <span class="gold">특수무기</span>',
+      wLead: '수류탄과 드론부터 헬기, 전차, 순항미사일, 전술핵까지 18종. 현대 화기의 압도적 화력으로 역사를 지켜라.',
+      wAuto: '직접 조준해 쏘거나 <b>AUTO</b>에 맡기세요',
+      bEyebrow: 'Real-time squad battle', bTitle: '몰려오는 <span class="gold">수천 명</span>',
+      bLead: '시공간 균열이 열렸다. 과거의 대군이 밀려온다. 바리케이드 뒤에서 끝까지 버텨라.',
+      b1t: '개 분대 · 60명 출격', b1d: '최대 6개 분대, 60명이 전장을 누빕니다',
+      b2t: '엄폐하고 버텨라', b2d: '엄폐물 뒤에서 버티고, 다가오는 공성병기를 먼저 부수세요',
+      b3t: '한 방에 대군 섬멸', b3d: '박격포·헬기·전술핵이 적 행렬을 통째로 쓸어버립니다',
+      eEyebrow: '6 eras · 30 maps · 300 stages', eTitle: '고대에서 <span class="gold">미래</span>까지',
+      eLead: '시대마다 다른 적과 공성병기. 검병·궁수·기병부터 소총병·전차·헬기, 그리고 외계인까지.',
+      bonus: '번외편', stage: 'STAGE',
+      iTitle: '무한 모드 & 리더보드', iDesc: '끝없이 밀려오는 적, 얼마나 버틸 수 있을까요? 시대별 기록으로 전 세계 지휘관과 겨뤄 보세요.',
+      gEyebrow: 'Upgrades', gTitle: '깊이 있는 <span class="gold">강화</span>',
+      gLead: '머지 말고도 키울 게 많아요. 병과를 훈련하고, 무기를 개조하고, 부대를 증원하세요.',
+      g1t: '병과 훈련', g1d: '5개 병과, 등급 돌파와 특전',
+      g2t: '무기고', g2d: '특수무기 개조, ★ 돌파와 각성',
+      g3t: '부대', g3d: '보급 장비 · 야전 의무 · 타임리프 · 분대 증원',
+      g4t: '작전 보급', g4d: '접속하지 않는 동안에도 골드가 쌓여요', g4n: '최대 12시간',
+      g5t: '공정한 플레이', g5d: '과금 없이 모든 콘텐츠 플레이 가능. 광고 시청은 선택 사항',
+      g6t: '클라우드 저장', g6d: '기기를 바꿔도 진행 상황을 그대로 이어서',
+      shotEyebrow: 'Screenshots', shotTitle: '작전 브리핑',
+      fTitle: '지금 타임리프하라.<br><span class="gold">역사가 당신을 기다린다.</span>',
+      supEyebrow: 'Support', supTitle: '도움이 필요하신가요?',
+      supLead: '게임 안 설정 › 문의하기에서 보내 주시면 기기 정보가 함께 담겨 더 빨리 도와드릴 수 있어요.',
+      supMail: '문의하기 · 오류 신고', supMore: 'NINI Universe', supMoreSub: '다른 게임 둘러보기',
+      ranks: ['이병','일병','상병','병장','하사','중사','상사','원사','준위','소위','중위','대위','소령','중령','대령','준장','소장','중장','대장','원수'],
+      weapons: ['수류탄','섬광탄','K201 유탄','1.7배 연사','클레이모어','100% 치명타','화염방사기','공격 드론','MK19 유탄기관총','박격포','적 교란','대전차 미사일','헬기 지원','전차 지원','전투기 폭격 요청','순항미사일','EMP 미사일','전술핵'],
+      eras: [
+        ['고대', '검병 · 창병 · 궁수 · 투석병'],
+        ['중세', '기병 · 중장갑병 · 석궁병 · 기사'],
+        ['근대 초기', '조총병 · 총기 기병 · 수류탄병'],
+        ['근대', '소총병 · 기관총병 · 화염방사병'],
+        ['현대', '중무장 보병 · 대공 보병 · 특수부대'],
+        ['미래', '외계인 침공 — 현대 화력도 버겁다'],
+      ],
+    },
+    en: {
+      _title: 'Time Defenders: Merge & Defense',
+      badge: 'Complete overhaul · New bonus era: Future', kname: 'Time Defenders: Merge & Defense',
+      h1: 'Modern special forces,<span class="gold">deployed to the past!</span>', lead: 'A handful of elites vs. armies of thousands',
+      appstore: 'Download on the App Store', play: 'Get it on Google Play',
+      s1: 'Ranks', s2: 'Special weapons', s3: 'Eras', s4: 'Stages',
+      mEyebrow: 'Merge to promote', mTitle: 'Merge to <span class="gold">promote!</span>',
+      mLead: 'Merge two soldiers of the same rank to promote them. Climb all 20 ranks, from Private to Field Marshal.',
+      mP1: 'Every new rank you reach unlocks a new special weapon', mP2: 'Soldiers are summoned with a time-charged Timeleap', mP3: 'Reach Field Marshal for the tactical nuke',
+      unlock: 'Special weapon unlocked', basic: 'Basic Firepower',
+      wEyebrow: 'Special weapons', wTitle: '18 <span class="gold">special weapons</span>',
+      wLead: 'From grenades and drones to helicopters, tanks, cruise missiles and tactical nukes. Defend history with overwhelming modern firepower.',
+      wAuto: 'Aim them yourself or leave it to <b>AUTO</b>',
+      bEyebrow: 'Real-time squad battle', bTitle: '<span class="gold">Thousands</span> are coming',
+      bLead: 'A rift in time has opened, and armies of the past are pouring through. Hold the line behind the barricades.',
+      b1t: 'squads · 60 soldiers', b1d: 'Up to 6 squads and 60 soldiers take the field',
+      b2t: 'Take cover and hold', b2d: 'Hold behind cover and take out the siege engines first',
+      b3t: 'Wipe out whole armies', b3d: 'Mortars, helicopters and nukes sweep entire columns away',
+      eEyebrow: '6 eras · 30 maps · 300 stages', eTitle: 'From ancient times to the <span class="gold">future</span>',
+      eLead: 'New foes and siege engines in every era — swordsmen, archers and cavalry, then riflemen, tanks and helicopters… and aliens.',
+      bonus: 'Bonus era', stage: 'STAGE',
+      iTitle: 'Infinite Mode & Leaderboards', iDesc: 'Endless waves — how long can you hold? Compete with commanders worldwide in every era.',
+      gEyebrow: 'Upgrades', gTitle: 'Deep <span class="gold">upgrades</span>',
+      gLead: "There's more to grow than merging. Train your branches, upgrade your weapons and expand your forces.",
+      g1t: 'Branch Training', g1d: '5 branches with tier breakthroughs and perks',
+      g2t: 'Armory', g2d: 'Upgrade special weapons, break through ★ tiers and awaken them',
+      g3t: 'Forces', g3d: 'Supply Gear · Field Medic · Timeleap · Squad Expansion',
+      g4t: 'Supplies', g4d: "Gold keeps piling up even while you're away", g4n: 'Up to 12 hours',
+      g5t: 'Fair play', g5d: 'All content playable for free. Watching ads is always optional',
+      g6t: 'Cloud save', g6d: 'Switch devices and pick up right where you left off',
+      shotEyebrow: 'Screenshots', shotTitle: 'Mission briefing',
+      fTitle: 'Timeleap now.<br><span class="gold">History is waiting for you.</span>',
+      supEyebrow: 'Support', supTitle: 'Need a hand?',
+      supLead: 'Send us a message from Settings › Contact in the game — your device info is included so we can help faster.',
+      supMail: 'Contact · Bug Report', supMore: 'NINI Universe', supMoreSub: 'See our other games',
+      ranks: ['Private','Private First Class','Corporal','Sergeant','Staff Sergeant','Sergeant First Class','Master Sergeant','Sergeant Major','Warrant Officer','Second Lieutenant','First Lieutenant','Captain','Major','Lieutenant Colonel','Colonel','Brigadier General','Major General','Lieutenant General','General','Field Marshal'],
+      weapons: ['Grenade','Flashbang','K201 Grenade Launcher','1.7x Rapid Fire','Claymore','100% Critical','Flamethrower','Attack Drone','Mk 19 Grenade Launcher','Mortar','Enemy Disruption','Anti-Tank Missile','Heli Support','Tank Summon','Fighter Airstrike','Cruise Missile','EMP Missile','Tactical Nuke'],
+      eras: [
+        ['Ancient', 'Swordsmen · spearmen · archers · slingers'],
+        ['Medieval', 'Cavalry · heavy infantry · crossbowmen · knights'],
+        ['Early Modern', 'Musketeers · mounted gunners · grenadiers'],
+        ['Modern', 'Riflemen · machine gunners · flamethrowers'],
+        ['Contemporary', 'Heavy infantry · anti-air troops · special forces'],
+        ['Future', 'An alien invasion that pushes modern firepower to the limit'],
+      ],
+    },
+    ja: {
+      _title: 'タイムディフェンダーズ：マージ＆ディフェンス',
+      badge: '全面リニューアル・番外編「未来」時代が登場', kname: 'タイムディフェンダーズ：マージ＆ディフェンス',
+      h1: '現代特殊部隊、<span class="gold">過去へ出撃！</span>', lead: '少数精鋭で数千の大軍を食い止めろ',
+      appstore: 'App Storeでダウンロード', play: 'Google Playで手に入れよう',
+      s1: '階級', s2: '特殊兵器', s3: '時代', s4: 'ステージ',
+      mEyebrow: 'Merge to promote', mTitle: '合成で<span class="gold">昇進！</span>',
+      mLead: '同じ階級の兵士2人を合わせれば1階級アップ。二等兵から元帥まで、20段階を駆け上がろう。',
+      mP1: '初めて到達した階級ごとに新しい特殊兵器を獲得', mP2: '兵士は時間でチャージされるタイムリープで召喚', mP3: '元帥になれば戦術核まで',
+      unlock: '特殊兵器を獲得', basic: '基本火力',
+      wEyebrow: 'Special weapons', wTitle: '階級ごとの<span class="gold">特殊兵器</span>',
+      wLead: '手榴弾やドローンから、ヘリ、戦車、巡航ミサイル、戦術核まで全18種。現代火器の圧倒的な火力で歴史を守り抜け。',
+      wAuto: '自分で狙って撃つも、<b>AUTO</b>に任せるも自由',
+      bEyebrow: 'Real-time squad battle', bTitle: '押し寄せる<span class="gold">数千の敵</span>',
+      bLead: '時空の裂け目が開き、過去の大軍が押し寄せる。バリケードを盾に最後まで耐え抜け。',
+      b1t: '分隊・60人が出撃', b1d: '最大6分隊・60人が戦場を駆ける',
+      b2t: '遮蔽物で耐え抜け', b2d: '遮蔽物を盾に耐え、迫り来る攻城兵器を先に叩け',
+      b3t: '一撃で大軍を殲滅', b3d: '迫撃砲・ヘリ・戦術核が敵の隊列を丸ごと吹き飛ばす',
+      eEyebrow: '6 eras · 30 maps · 300 stages', eTitle: '古代から<span class="gold">未来</span>まで',
+      eLead: '時代ごとに異なる敵と攻城兵器。剣兵・弓兵・騎兵から小銃兵・戦車・ヘリ、そしてエイリアンまで。',
+      bonus: '番外編', stage: 'STAGE',
+      iTitle: '無限モード＆リーダーボード', iDesc: '終わりなく押し寄せる敵、どこまで耐えられるか？時代ごとの記録で世界中の指揮官と競おう。',
+      gEyebrow: 'Upgrades', gTitle: 'やり込める<span class="gold">強化</span>',
+      gLead: '合成以外にも育てる要素がたっぷり。兵科を訓練し、兵器を改造し、部隊を増強しよう。',
+      g1t: '兵科訓練', g1d: '5つの兵科、等級突破と特典',
+      g2t: '武器庫', g2d: '特殊兵器の改造、★突破と覚醒',
+      g3t: '部隊', g3d: '補給装備・野戦医療・タイムリープ・分隊増員',
+      g4t: '作戦補給', g4d: 'ログインしていない間もゴールドが貯まる', g4n: '最大12時間',
+      g5t: '公平なプレイ', g5d: '課金なしで全コンテンツをプレイ可能。広告視聴は任意',
+      g6t: 'クラウドセーブ', g6d: '機種変更しても進行状況をそのまま引き継げる',
+      shotEyebrow: 'Screenshots', shotTitle: '作戦ブリーフィング',
+      fTitle: '今すぐタイムリープせよ。<br><span class="gold">歴史があなたを待っている。</span>',
+      supEyebrow: 'Support', supTitle: 'お困りですか？',
+      supLead: 'ゲーム内の設定 › お問い合わせから送っていただくと、端末情報が添えられるのでより早くお手伝いできます。',
+      supMail: 'お問い合わせ・不具合報告', supMore: 'NINI Universe', supMoreSub: 'ほかのゲームを見る',
+      ranks: ['二等兵','一等兵','上等兵','兵長','伍長','軍曹','曹長','准尉S','准尉','少尉','中尉','大尉','少佐','中佐','大佐','准将','少将','中将','大将','元帥'],
+      weapons: ['手榴弾','閃光弾','K201擲弾','1.7倍連射','クレイモア','100%クリティカル','火炎放射器','攻撃ドローン','MK19擲弾機関銃','迫撃砲','敵撹乱','対戦車ミサイル','ヘリ支援','戦車召喚','戦闘機爆撃要請','巡航ミサイル','EMPミサイル','戦術核'],
+      eras: [
+        ['古代', '剣兵・槍兵・弓兵・投石兵'],
+        ['中世', '騎兵・重装兵・クロスボウ兵・騎士'],
+        ['近世', '鉄砲兵・騎馬銃兵・擲弾兵'],
+        ['近代', '小銃兵・機関銃兵・火炎放射兵'],
+        ['現代', '重武装歩兵・対空歩兵・特殊部隊'],
+        ['未来', 'エイリアンの侵略 — 現代火力でも苦戦必至'],
+      ],
+    },
+  };
+  // 일본어 원사(8계급)는 게임 디버그 약칭이 '准尉S'라 소개용으로 풀어 쓴다
+  T.ja.ranks[7] = '先任曹長';
 
-                goStore(androidUrl);
-            }
-        }
+  const ERA_IDS = ['ancient', 'medieval', 'early_modern', 'modern', 'contemporary', 'future'];
+  const SHOT_COUNT = 7;
+  const $ = id => document.getElementById(id);
+  let lang = 'ko';
 
-        window.onload = redirectToStore;
-    </script>
+  function pickLang() {
+    const q = new URLSearchParams(location.search).get('lang');
+    if (T[q]) return q;
+    try { const s = localStorage.getItem('td-lang'); if (T[s]) return s; } catch (e) {}
+    const n = (navigator.language || 'ko').toLowerCase();
+    if (n.startsWith('ja')) return 'ja';
+    if (n.startsWith('ko')) return 'ko';
+    return 'en';
+  }
+
+  function buildArsenal(t) {
+    const box = $('arsenal'); box.innerHTML = '';
+    t.weapons.forEach((name, i) => {
+      const rank = i + 3;
+      const d = document.createElement('div');
+      d.className = 'wpn reveal in' + (rank === 20 ? ' nuke' : rank >= 15 ? ' top' : '');
+      d.innerHTML = `<img loading="lazy" src="img/weapons/${rank}.webp" alt=""><div class="nm"></div><div class="rk"></div>`;
+      d.querySelector('.nm').textContent = name;
+      d.querySelector('.rk').textContent = t.ranks[rank - 1];
+      box.appendChild(d);
+    });
+  }
+
+  function buildEras(t) {
+    const box = $('eras'); box.innerHTML = '';
+    ERA_IDS.forEach((id, i) => {
+      const [name, foe] = t.eras[i];
+      const fut = id === 'future';
+      const a = document.createElement('article');
+      a.className = 'era reveal' + (fut ? ' future' : '');
+      a.innerHTML =
+        `<img class="map" loading="lazy" src="img/eras/map_${id}.webp" alt="">` +
+        (fut ? `<span class="tag"></span>` : '') +
+        `<img class="emb" loading="lazy" src="img/eras/${id}.webp" alt="">` +
+        `<div class="no">ERA 0${i + 1}</div><h3></h3><div class="foe"></div>` +
+        `<span class="st">${t.stage} ${i * 50 + 1} – ${(i + 1) * 50}</span>`;
+      a.querySelector('h3').textContent = name;
+      a.querySelector('.foe').textContent = foe;
+      if (fut) a.querySelector('.tag').textContent = t.bonus;
+      box.appendChild(a);
+    });
+    observe(box.querySelectorAll('.reveal'));
+  }
+
+  function buildShots(t) {
+    const box = $('shots'); box.innerHTML = '';
+    for (let i = 1; i <= SHOT_COUNT; i++) {
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.src = `img/shots/${lang}/0${i}.webp`;
+      img.alt = `Time Defenders ${i}`;
+      box.appendChild(img);
+    }
+  }
+
+  function apply(l) {
+    lang = l;
+    const t = T[l];
+    document.documentElement.lang = l;
+    document.title = t._title;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const v = t[el.dataset.i18n]; if (v != null) el.innerHTML = v;
+    });
+    document.querySelectorAll('.lang button').forEach(b =>
+      b.setAttribute('aria-pressed', String(b.dataset.lang === l)));
+    buildArsenal(t); buildEras(t); buildShots(t); buildLadder();
+    try { localStorage.setItem('td-lang', l); } catch (e) {}
+  }
+
+  // ── 등장 애니메이션 ──
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }) : null;
+  function observe(els) { els.forEach(el => io ? io.observe(el) : el.classList.add('in')); }
+
+  // ── 머지 데모: 같은 계급 둘 → 한 계급 위 (계급장은 언어별 양식: 한국 육군 / 미 육군 / 육상자위대) ──
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let step = 1; // 지금 합치는 계급 (1 → 2)
+  function buildLadder() {
+    const box = $('ladder'); box.innerHTML = '';
+    for (let r = 1; r <= 20; r++) {
+      const im = document.createElement('img');
+      im.src = `img/ranks/${lang}/${r}.webp`; im.alt = '';
+      box.appendChild(im);
+    }
+    showStep(false);
+  }
+  function showStep(animate) {
+    const t = T[lang], next = step + 1;
+    $('mA').src = $('mB').src = `img/ranks/${lang}/${step}.webp`;
+    $('mR').src = `img/ranks/${lang}/${next}.webp`;
+    $('mRank').textContent = t.ranks[next - 1];
+    const w = t.weapons[next - 3];
+    $('mWeapon').innerHTML = w ? `${t.unlock} · <b></b>` : `<b></b>`;
+    $('mWeapon').querySelector('b').textContent = w || t.basic;
+    [...$('ladder').children].forEach((im, i) => {
+      im.classList.toggle('on', i < next);
+      im.classList.toggle('cur', i === next - 1);
+    });
+    const demo = $('mergeDemo');
+    demo.classList.remove('go');
+    if (animate) { void demo.offsetWidth; demo.classList.add('go'); }
+  }
+  let demoTimer = null, demoVisible = false;
+  function loop() {
+    step = step >= 19 ? 1 : step + 1;
+    showStep(true);
+    demoTimer = setTimeout(loop, step === 19 ? 3200 : 1900);
+  }
+  if (!reduce && 'IntersectionObserver' in window) {
+    new IntersectionObserver(es => es.forEach(e => {
+      demoVisible = e.isIntersecting;
+      if (demoVisible && !demoTimer) { showStep(true); demoTimer = setTimeout(loop, 1900); }
+      if (!demoVisible && demoTimer) { clearTimeout(demoTimer); demoTimer = null; }
+    }), { threshold: 0.3 }).observe($('mergeDemo'));
+  } else {
+    step = 19;
+  }
+
+  // ── 숫자 카운트업 ──
+  function countUp(el) {
+    const end = +el.dataset.count, t0 = performance.now(), dur = 1200;
+    const tick = now => {
+      const p = Math.min(1, (now - t0) / dur);
+      el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  if (!reduce) document.querySelectorAll('[data-count]').forEach(el => { el.textContent = '0'; setTimeout(() => countUp(el), 350); });
+
+  // ── 상단 바: 스크롤하면 불투명 ──
+  const nav = $('nav');
+  const onScroll = () => nav.classList.toggle('solid', scrollY > 40);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // ── 스크린샷 넘기기 ──
+  const shotStep = () => ($('shots').firstElementChild?.offsetWidth || 260) + 16;
+  $('prev').addEventListener('click', () => $('shots').scrollBy({ left: -shotStep() * 2 }));
+  $('next').addEventListener('click', () => $('shots').scrollBy({ left: shotStep() * 2 }));
+
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => apply(b.dataset.lang)));
+  apply(pickLang());
+  observe(document.querySelectorAll('.reveal:not(.in)'));
+</script>
 </body>
 </html>
