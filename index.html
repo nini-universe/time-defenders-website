@@ -3,11 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>타임 디펜더스 : 머지 & 디펜스</title>
-<meta name="description" content="소수 정예 현대 특수부대 vs 수천 명의 과거 대군. 머지로 20단계 계급을 올리고 18종 특수무기로 6개 시대, 300 스테이지를 지켜라.">
+<title>타임 디펜더스 : 머지 & 디펜스 - 밀리터리 디펜스 게임</title>
+<meta name="description" content="현대 특수부대로 과거의 대군을 막는 머지 디펜스 게임. 병사를 합쳐 20단계 계급으로 진급하고, 드론·헬기·전차·전술핵 등 특수무기 18종으로 고대부터 미래까지 6개 시대, 300 스테이지를 지켜라. 과금 없이 모든 콘텐츠를 즐기는 무료 게임.">
+<!-- 검색 — 한국어는 기본 주소, 영어·일본어는 ?lang= 주소. canonical은 아래 스크립트가 주소에 맞춰 단다 -->
+<link rel="alternate" hreflang="ko" href="https://nini-universe.github.io/time-defenders-website/">
+<link rel="alternate" hreflang="en" href="https://nini-universe.github.io/time-defenders-website/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://nini-universe.github.io/time-defenders-website/?lang=ja">
+<link rel="alternate" hreflang="x-default" href="https://nini-universe.github.io/time-defenders-website/">
+<script>
+  (function () {
+    var l = new URLSearchParams(location.search).get('lang');
+    var c = document.createElement('link'); c.rel = 'canonical';
+    c.href = 'https://nini-universe.github.io/time-defenders-website/' + (l === 'en' || l === 'ja' ? '?lang=' + l : '');
+    document.head.appendChild(c);
+  })();
+</script>
+<!-- 링크 미리보기 (카카오톡·페이스북·X 등) — 이미지 주소는 반드시 절대 주소 -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nini Universe">
+<meta property="og:url" content="https://nini-universe.github.io/time-defenders-website/">
 <meta property="og:title" content="타임 디펜더스 : 머지 & 디펜스">
-<meta property="og:description" content="현대 특수부대, 과거로 출격! 소수 정예로 수천 대군을 막아라.">
-<meta property="og:image" content="img/og.jpg">
+<meta property="og:description" content="현대 특수부대, 과거로 출격! 소수 정예로 수천 대군을 막아라. 머지로 진급하고 18종 특수무기로 6개 시대를 지켜라.">
+<meta property="og:image" content="https://nini-universe.github.io/time-defenders-website/img/og.jpg">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="500">
+<meta property="og:image:alt" content="타임 디펜더스 : 머지 & 디펜스">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:locale:alternate" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["VideoGame", "MobileApplication"],
+  "name": "타임 디펜더스 : 머지 & 디펜스",
+  "alternateName": ["타임 디펜더스", "Time Defenders", "Time Defenders: Merge & Defense", "タイムディフェンダーズ"],
+  "description": "현대 특수부대로 과거의 대군을 막는 무료 머지 디펜스 게임. 20단계 계급, 특수무기 18종, 6개 시대, 300 스테이지, 무한 모드와 리더보드.",
+  "url": "https://nini-universe.github.io/time-defenders-website/",
+  "image": "https://nini-universe.github.io/time-defenders-website/img/og.jpg",
+  "applicationCategory": "GameApplication",
+  "genre": ["디펜스", "머지", "전략", "밀리터리"],
+  "operatingSystem": "iOS, Android",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" },
+  "gamePlatform": ["iOS", "Android"],
+  "inLanguage": ["ko", "en", "ja"],
+  "author": { "@type": "Organization", "name": "Nini Universe", "url": "https://nini-universe.github.io/" },
+  "sameAs": [
+    "https://apps.apple.com/app/id6759893172",
+    "https://play.google.com/store/apps/details?id=com.nini.timedefenders"
+  ]
+}
+</script>
 <meta name="theme-color" content="#0B131B">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -382,7 +429,7 @@
 <main id="top">
   <!-- 히어로 -->
   <section class="hero">
-    <div class="hero-bg"><img src="img/art/hero.webp" alt="" fetchpriority="high"></div>
+    <div class="hero-bg"><img src="img/art/hero.webp" alt="과거의 대군에 맞서는 현대 특수부대" data-i18n-alt="heroAlt" fetchpriority="high"></div>
     <div class="hero-inner">
       <span class="badge"><b>2.0</b><span data-i18n="badge">전면 개편 · 번외편 '미래' 시대 등장</span></span>
       <div class="hero-id">
@@ -574,7 +621,9 @@
   // ── 문구 (ko / en / ja) — 스토어 2.0 설명(store_listing/APPSTORE_2.0.0.md)과 게임 안 번역을 따른다 ──
   const T = {
     ko: {
-      _title: '타임 디펜더스 : 머지 & 디펜스',
+      _title: '타임 디펜더스 : 머지 & 디펜스 - 밀리터리 디펜스 게임',
+      _desc: '현대 특수부대로 과거의 대군을 막는 머지 디펜스 게임. 병사를 합쳐 20단계 계급으로 진급하고, 드론·헬기·전차·전술핵 등 특수무기 18종으로 고대부터 미래까지 6개 시대, 300 스테이지를 지켜라. 과금 없이 모든 콘텐츠를 즐기는 무료 게임.',
+      heroAlt: '과거의 대군에 맞서는 현대 특수부대', shotAlt: '게임 화면',
       badge: "전면 개편 · 번외편 '미래' 시대 등장", kname: '타임 디펜더스 : 머지 & 디펜스',
       h1: '현대 특수부대,<span class="gold">과거로 출격!</span>', lead: '소수 정예로 수천 대군을 막아라',
       appstore: 'App Store에서 다운로드', play: 'Google Play에서 다운로드',
@@ -620,7 +669,9 @@
       ],
     },
     en: {
-      _title: 'Time Defenders: Merge & Defense',
+      _title: 'Time Defenders: Merge & Defense – Military Defense Strategy Game',
+      _desc: 'Lead modern special forces against armies of thousands from the past. Merge soldiers through 20 ranks and unleash 18 special weapons — drones, helicopters, tanks and tactical nukes — across 6 eras and 300 stages. Free to play — all content without spending.',
+      heroAlt: 'Modern special forces facing armies of the past', shotAlt: 'screenshot',
       badge: 'Complete overhaul · New bonus era: Future', kname: 'Time Defenders: Merge & Defense',
       h1: 'Modern special forces,<span class="gold">deployed to the past!</span>', lead: 'A handful of elites vs. armies of thousands',
       appstore: 'Download on the App Store', play: 'Get it on Google Play',
@@ -666,7 +717,9 @@
       ],
     },
     ja: {
-      _title: 'タイムディフェンダーズ：マージ＆ディフェンス',
+      _title: 'タイムディフェンダーズ：マージ＆ディフェンス - ミリタリー防衛ゲーム',
+      _desc: '現代特殊部隊で過去の大軍を迎え撃つマージディフェンスゲーム。兵士を合成して20段階の階級へ昇進し、ドローン・ヘリ・戦車・戦術核など18種の特殊兵器で、古代から未来まで6つの時代・300ステージを守り抜け。課金なしで全コンテンツを遊べる無料ゲーム。',
+      heroAlt: '過去の大軍に立ち向かう現代特殊部隊', shotAlt: 'ゲーム画面',
       badge: '全面リニューアル・番外編「未来」時代が登場', kname: 'タイムディフェンダーズ：マージ＆ディフェンス',
       h1: '現代特殊部隊、<span class="gold">過去へ出撃！</span>', lead: '少数精鋭で数千の大軍を食い止めろ',
       appstore: 'App Storeでダウンロード', play: 'Google Playで手に入れよう',
@@ -723,6 +776,8 @@
   function pickLang() {
     const q = new URLSearchParams(location.search).get('lang');
     if (T[q]) return q;
+    // 검색엔진 봇에게는 HTML 기본 언어(한국어)를 보여 준다 — 영어·일본어는 ?lang= 주소로 따로 색인된다
+    if (/googlebot|google-inspectiontool|bingbot|yeti|daumoa|duckduckbot|applebot|yandex|baiduspider|slurp|crawler|spider/i.test(navigator.userAgent)) return 'ko';
     try { const s = localStorage.getItem('td-lang'); if (T[s]) return s; } catch (e) {}
     const n = (navigator.language || 'ko').toLowerCase();
     if (n.startsWith('ja')) return 'ja';
@@ -770,7 +825,7 @@
       const img = document.createElement('img');
       img.loading = 'lazy';
       img.src = `img/shots/${lang}/0${i}.webp`;
-      img.alt = `Time Defenders ${i}`;
+      img.alt = `${t.kname} ${t.shotAlt} ${i}`;
       box.appendChild(img);
     }
   }
@@ -780,8 +835,12 @@
     const t = T[l];
     document.documentElement.lang = l;
     document.title = t._title;
+    document.querySelector('meta[name="description"]').content = t._desc;
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const v = t[el.dataset.i18n]; if (v != null) el.innerHTML = v;
+    });
+    document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+      const v = t[el.dataset.i18nAlt]; if (v != null) el.alt = v;
     });
     document.querySelectorAll('.lang button').forEach(b =>
       b.setAttribute('aria-pressed', String(b.dataset.lang === l)));
